@@ -1,0 +1,95 @@
+.debugger {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 1px 1px 1px #ddd;
+  position: absolute;
+  bottom: 0;
+  overflow: hidden;
+  color: white;
+}
+.debugger--closed {
+  width: 25%;
+}
+.debugger .debugger__main {
+  position: relative;
+}
+.debugger--closed .debugger__main {
+  display: none;
+}
+.debugger__header {
+  height: 20px;
+  box-shadow: 1px 1px 1px #ddd;
+  position: relative;
+  display: flex;
+  padding: 0.5em 0.25em 0.5em 0.5em;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.debugger__headerRight {
+  margin-left: auto;
+}
+.debugger__btn {
+  padding: 0.25em 0.5em;
+  text-align: center;
+  box-shadow: 1px 1px 1px #ddd;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.debugger__btn:hover {
+  cursor: pointer;
+}
+.debugger--closed #debugger__closeButton {
+  display: none;
+}
+.debugger #debugger__expandButton {
+  display: none;
+}
+.debugger--closed #debugger__expandButton {
+  display: block;
+}
+.debugger__console {
+  width: 100%;
+  height: 200px;
+  overflow: scroll;
+}
+.debugger__console::-webkit-scrollbar {
+  width: 0.5em;
+}
+.debugger__console::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+}
+.debugger__console::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+.debugger__logger {
+  margin: 0;
+  padding: 0;
+  padding: 2em;
+  font-family: monospace;
+}
+.debugger__logger pre {
+  overflow-wrap: break-word;
+}
+.debugger__input {
+  width: 100%;
+  bottom: 0;
+  display: flex;
+}
+.debugger__input textarea {
+  width: 75%;
+  padding: 1em;
+  position: relative;
+  float: left;
+  font-family: monospace;
+  resize: none;
+}
+.debugger__input button {
+  width: 20%;
+  position: relative;
+  float: left;
+  padding: 0.75em 0;
+}
