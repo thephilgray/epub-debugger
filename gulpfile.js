@@ -5,6 +5,7 @@ const autoprefixer = require('autoprefixer');
 const uglify = require('gulp-uglify');
 const rename = require('gulp-rename');
 const packagejson = require('./package.json');
+const concat = require('gulp-concat');
 
 gulp.task('scss', function() {
   gulp
@@ -16,9 +17,9 @@ gulp.task('scss', function() {
 
 gulp.task('js', function() {
   gulp
-    .src('src/index.js')
+    .src(['src/interact.js', 'src/index.js'])
     .pipe(uglify())
-    .pipe(rename(`epub-debugger-${packagejson.version}.js`))
+    .pipe(concat(`epub-debugger-${packagejson.version}.js`))
     .pipe(gulp.dest('dist'));
 });
 

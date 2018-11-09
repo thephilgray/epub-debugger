@@ -1,6 +1,13 @@
+/**
+ *
+ * epub-debugger
+ *
+ */
+
 // plugin boilerplate: https://vanillajstoolkit.com/boilerplates/revealing-module-pattern/user-options/
 
 var epubdebugger = (function() {
+  'use strict';
   /* Variables */
   var publicAPIs = {};
   var elements = {};
@@ -182,14 +189,12 @@ var epubdebugger = (function() {
       [elements[debugger__header], elements[debugger__main]]
     );
 
-    wrapper.appendChild(elements[debugger__wrapper]);
-
     /* Inject CSS into document for convenience of only needing to drop in one file */
     // source: https://stackoverflow.com/questions/524696/how-to-create-a-style-tag-with-javascript
     // TODO: integrate with build process
 
     var css =
-      '.debugger{width:100%;background:rgba(0,0,0,0.8);box-shadow:1px 1px 1px #ddd;position:absolute;bottom:0;overflow:hidden;color:white}.debugger--closed{width:25%}.debugger .debugger__main{position:relative}.debugger--closed .debugger__main{display:none}.debugger__header{height:20px;box-shadow:1px 1px 1px #ddd;position:relative;display:flex;padding:0.5em 0.25em 0.5em 0.5em;justify-content:center;align-items:center;cursor:pointer}.debugger__headerRight{margin-left:auto}.debugger__btn{padding:0.25em 0.5em;text-align:center;box-shadow:1px 1px 1px #ddd;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.debugger__btn:hover{cursor:pointer}.debugger--closed #debugger__closeButton{display:none}.debugger #debugger__expandButton{display:none}.debugger--closed #debugger__expandButton{display:block}.debugger__console{width:100%;height:200px;overflow:scroll}.debugger__console::-webkit-scrollbar{width:0.5em}.debugger__console::-webkit-scrollbar-track{-webkit-box-shadow:inset 0 0 6px rgba(255,255,255,0.3)}.debugger__console::-webkit-scrollbar-thumb{background-color:darkgrey;outline:1px solid slategrey}.debugger__logger{margin:0;padding:0;padding:2em;font-family:monospace}.debugger__logger pre{overflow-wrap:break-word}.debugger__input{width:100%;bottom:0;display:flex}.debugger__input textarea{width:75%;padding:1em;position:relative;float:left;font-family:monospace;resize:none}.debugger__input button{width:20%;position:relative;float:left;padding:0.75em 0}';
+      ".debugger{width:80%;background:rgba(0,0,0,0.8);box-shadow:1px 1px 1px #ddd;position:absolute;bottom:0;overflow:hidden;color:white;z-index:1000;-webkit-transform:translate(0px, 0px);transform:translate(0px, 0px)}.debugger--closed{width:25%}.debugger .debugger__main{position:relative}.debugger--closed .debugger__main{display:none}.debugger__header{height:20px;box-shadow:1px 1px 1px #ddd;position:relative;display:flex;padding:1em 0.5em;justify-content:center;align-items:center}.debugger__headerLeft{flex:3 1 50%}.debugger__headerLeft:before{content:'.';position:relative;bottom:0.5em;color:#fff;text-shadow:0 0.25em #fff, 0 0.5em #fff, 0.25em 0 #fff, 0.25em 0.25em #fff, 0.25em 0.5em #fff, 0.5em 0 #fff, 0.5em 0.25em #fff, 0.5em 0.5em #fff}.debugger__title{display:inline-block;padding-left:1em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.debugger__headerRight{margin-left:auto;cursor:pointer}.debugger__btn{padding:0.25em 0.5em;text-align:center;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.debugger__btn:hover{cursor:pointer}.debugger--closed #debugger__closeButton{display:none}.debugger #debugger__expandButton{display:none}.debugger--closed #debugger__expandButton{display:block}.debugger__console{width:100%;height:200px;overflow:scroll}.debugger__logger{margin:0;padding:0;padding:2em;font-family:monospace}.debugger__logger pre{overflow-wrap:break-word}.debugger__input{width:100%;bottom:0;display:flex}.debugger__input textarea{position:relative;font-family:monospace;resize:none;flex:3 1 400px}.debugger__input button{position:relative;padding:0.75em 0;flex:1 1 100px}";
 
     var head = document.head || document.getElementsByTagName('head')[0];
     var style = document.createElement('style');
@@ -203,6 +208,63 @@ var epubdebugger = (function() {
     }
 
     head.appendChild(style);
+
+    wrapper.appendChild(elements[debugger__wrapper]);
+
+    makeDraggable();
+    resetContentEditable();
+  };
+
+  var makeDraggable = function() {
+    /* Drag and drop functionality with interactjs */
+
+    function dragMoveListener(event) {
+      var target = event.target,
+        // keep the dragged position in the data-x/data-y attributes
+        x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+        y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+      // translate the element
+      target.style.webkitTransform = target.style.transform =
+        'translate(' + x + 'px, ' + y + 'px)';
+
+      // update the posiion attributes
+      target.setAttribute('data-x', x);
+      target.setAttribute('data-y', y);
+    }
+    interact(elements[debugger__wrapper]).draggable({
+      // enable inertial throwing
+      inertia: true,
+      // keep the element within the area of it's parent
+      restrict: {
+        restriction: 'parent',
+        endOnly: true,
+        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+      },
+      allowFrom: '.' + debugger__headerLeft,
+      // enable autoScroll
+      autoScroll: true,
+      // call this function on every dragmove event
+      onmove: dragMoveListener
+    });
+  };
+
+  /**
+   *
+   * Block comment
+   *
+   */
+
+  var resetContentEditable = function() {
+    var setContenteditable = function() {
+      if (window.navigator.epubReadingSystem) {
+        if (window.navigator.epubReadingSystem.name === 'iBooks') {
+          elements[debugger__textarea].setAttribute('contenteditable', true);
+          elements[debugger__textarea].removeAttribute('disabled');
+        }
+      }
+    };
+    setTimeout(setContenteditable, 2000);
   };
 
   var printToConsole = function(txt) {
@@ -287,10 +349,10 @@ var epubdebugger = (function() {
       }
     }
 
-    elements[debugger__header].addEventListener('click', toggleDebugger);
+    elements[debugger__headerRight].addEventListener('click', toggleDebugger);
   };
 
   return publicAPIs;
 })();
 
-// epubdebugger.init();
+epubdebugger.init();
